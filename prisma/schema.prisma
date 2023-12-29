@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id    Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user_name     String @unique
+  user_password String
+
+  first_name       String             @default("")
+  last_name        String?            @default("")
+  user_permissions user_permissions[]
+}
+
+model user_permissions {
+  user_permissions_id Int @id @default(autoincrement())
+
+  user_id Int
+  page_id Int
+  status  Boolean @default(false)
+
+  app_pages app_pages? @relation(fields: [page_id], references: [page_id])
+  users     users?     @relation(fields: [user_id], references: [user_id])
+}
+
+model app_pages {
+  page_id    Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  page_parent_id Int?
+
+  eng_page_name     String  @unique()
+  arab_page_name     String  @unique()
+  page_icon     String  @default("")
+  page_link     String  @unique()
+  page_disabled String? @default("N") @db.VarChar(1)
+  run_in_modal  String? @default("N") @db.VarChar(1)
+
+  page_parent      page_parent?       @relation(fields: [page_parent_id], references: [page_parent_id])
+  user_permissions user_permissions[]
+}
+
+model page_parent {
+  page_parent_id Int      @id @default(autoincrement())
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  eng_page_parent_name String @unique()
+  arab_page_parent_name String @unique()
+  hidden           String @default("N") @db.VarChar(1)
+
+  app_pages app_pages[]
+}
