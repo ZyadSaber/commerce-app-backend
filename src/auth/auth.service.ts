@@ -123,6 +123,9 @@ export class AuthService {
   async getUsersData(dto: { user_name: string }) {
     const { user_name } = dto;
     const users = await this.prisma.users.findMany({
+      orderBy: {
+        user_id: 'asc',
+      },
       where: {
         user_name: {
           contains: user_name || undefined,
@@ -266,6 +269,82 @@ export class AuthService {
       }
     } catch (error) {
       throw error;
+    }
+  }
+
+  async postUserData(dto: any) {
+    const {
+      user_id,
+      user_name,
+      first_name,
+      last_name,
+      password,
+      query_status,
+    } = dto;
+    const passwordHash = await argon.hash(password || '');
+    if (query_status === 'n') {
+      try {
+        await this.prisma.users.create({
+          data: {
+            user_name,
+            first_name,
+            last_name,
+            user_password: passwordHash,
+          },
+        });
+        return { response: 'success' };
+      } catch (error) {
+        new ForbiddenException({
+          response: 'error',
+          message: error,
+        });
+      }
+    } else if (query_status === 'u') {
+      try {
+        await this.prisma.users.update({
+          where: {
+            user_id,
+          },
+          data: {
+            user_name,
+            first_name,
+            last_name,
+            // user_password: passwordHash,
+          },
+        });
+        return { response: 'success' };
+      } catch (error) {
+        new ForbiddenException({
+          response: 'error',
+          message: error,
+        });
+      }
+    } else if (query_status === 'd') {
+      try {
+        await this.prisma.user_permissions.deleteMany({
+          where: {
+            user_id: +user_id,
+          },
+        });
+
+        await this.prisma.users.delete({
+          where: {
+            user_id,
+          },
+        });
+
+        return { response: 'success' };
+      } catch (error) {
+        new ForbiddenException({
+          response: 'error',
+          message: error,
+        });
+      }
+    } else {
+      new ForbiddenException({
+        response: 'error',
+        message: 'error with the JSON',
+      });
     }
   }
 }

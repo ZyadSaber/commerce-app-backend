@@ -33,9 +33,14 @@ export class AuthController {
     return this.authService.getPagesPermission(params);
   }
 
-  @Public()
   @Post('post_pages_permissions')
   postPagesPermission(@Body() dto: UserPermissionType[]) {
     return this.authService.postPagesPermission(dto);
+  }
+
+  @Public()
+  @Post('post_users_table_data')
+  postUserData(@Body() dto: any) {
+    return this.authService.postUserData(dto);
   }
 }
