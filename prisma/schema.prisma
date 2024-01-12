@@ -18,20 +18,23 @@ model users {
   user_name     String @unique
   user_password String
 
-  first_name       String             @default("")
-  last_name        String?            @default("")
+  first_name String  @default("")
+  last_name  String? @default("")
+
+  language         Int                @default(1)
   user_permissions user_permissions[]
 }
 
-model user_permissions {
-  user_permissions_id Int @id @default(autoincrement())
+model page_parent {
+  page_parent_id Int      @id @default(autoincrement())
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
-  user_id Int
-  page_id Int
-  status  Boolean @default(false)
+  eng_page_parent_name  String @unique()
+  arab_page_parent_name String @unique()
+  hidden                Boolean @default(false)
 
-  app_pages app_pages? @relation(fields: [page_id], references: [page_id])
-  users     users?     @relation(fields: [user_id], references: [user_id])
+  app_pages app_pages[]
 }
 
 model app_pages {
@@ -41,25 +44,62 @@ model app_pages {
 
   page_parent_id Int?
 
-  eng_page_name     String  @unique()
-  arab_page_name     String  @unique()
-  page_icon     String  @default("")
-  page_link     String  @unique()
-  page_disabled String? @default("N") @db.VarChar(1)
-  run_in_modal  String? @default("N") @db.VarChar(1)
+  eng_page_name  String  @unique()
+  arab_page_name String  @unique()
+  page_icon      String  @default("")
+  page_link      String  @unique()
+  page_disabled  Boolean? @default(false)
+  run_in_modal   Boolean? @default(false)
+
+  with_add            Boolean @default(true)
+  with_edit           Boolean @default(true)
+  with_delete         Boolean @default(true)
+  with_print          Boolean @default(true)
+  with_update_history Boolean @default(false)
 
   page_parent      page_parent?       @relation(fields: [page_parent_id], references: [page_parent_id])
   user_permissions user_permissions[]
+  page_label       page_label[]
 }
 
-model page_parent {
-  page_parent_id Int      @id @default(autoincrement())
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+model user_permissions {
+  user_permissions_id Int @id @default(autoincrement())
 
-  eng_page_parent_name String @unique()
-  arab_page_parent_name String @unique()
-  hidden           String @default("N") @db.VarChar(1)
+  user_id Int
+  page_id Int
+  status  Boolean @default(false)
 
-  app_pages app_pages[]
+  can_add            Boolean @default(false)
+  can_edit           Boolean @default(false)
+  can_delete         Boolean @default(false)
+  can_print          Boolean @default(false)
+  can_update_history Boolean @default(false)
+
+  app_pages app_pages? @relation(fields: [page_id], references: [page_id])
+  users     users?     @relation(fields: [user_id], references: [user_id])
+}
+
+model labels {
+  label_id String @id @unique
+
+  eng_label  String
+  arab_label String
+
+  eng_page_name  String       @unique()
+  arab_page_name String       @unique()
+  page_label     page_label[]
+}
+
+model page_label {
+  row_key Int @id @default(autoincrement())
+
+  page_id Int
+
+  label_id String
+
+  eng_page_name  String @unique()
+  arab_page_name String @unique()
+
+  app_pages app_pages @relation(fields: [page_id], references: [page_id])
+  labels    labels    @relation(fields: [label_id], references: [label_id])
 }

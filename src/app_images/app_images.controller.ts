@@ -2,7 +2,9 @@ import { Controller, Get, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { Public } from '../auth/decorators/public.decorator';
 
+@Public()
 @Controller('app_images')
 export class AppImagesController {
   @Get('primary_logo')

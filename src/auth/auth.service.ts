@@ -1,9 +1,10 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { format } from 'date-fns';
 import * as argon from 'argon2';
 import { PrismaManageService } from './../prisma-manage/prisma-manage.service';
-import { signInType } from './interface';
+import { signInType, UserPermissionType } from './interface';
 
 @Injectable()
 export class AuthService {
@@ -53,7 +54,7 @@ export class AuthService {
           },
           {
             app_pages: {
-              page_disabled: 'N',
+              page_disabled: false,
             },
           },
           { status: true },
@@ -117,5 +118,154 @@ export class AuthService {
     });
 
     return computedData;
+  }
+
+  async getUsersData(dto: { user_name: string }) {
+    const { user_name } = dto;
+    const users = await this.prisma.users.findMany({
+      where: {
+        user_name: {
+          contains: user_name || undefined,
+        },
+      },
+      select: {
+        user_id: true,
+        created_at: true,
+        updated_at: true,
+        user_name: true,
+        first_name: true,
+        last_name: true,
+        language: true,
+      },
+    });
+
+    const response = users.map((record) => {
+      const { created_at, updated_at, language } = record;
+      const obj = {
+        ...record,
+        created_at: format(created_at, 'yyyy-MM-dd hh:mm aa'),
+        updated_at: format(updated_at, 'yyyy-MM-dd hh:mm aa'),
+        language_name: language === 1 ? 'English' : 'العربية',
+      };
+      return obj;
+    });
+
+    return {
+      data: response,
+    };
+  }
+
+  async getPagesPermission(dto: { user_id: string }) {
+    try {
+      const { user_id } = dto;
+      const page_permissions = await this.prisma.user_permissions.findMany({
+        orderBy: {
+          user_permissions_id: 'asc',
+        },
+        where: {
+          user_id: +user_id,
+        },
+        include: {
+          app_pages: {
+            select: {
+              with_add: true,
+              with_edit: true,
+              with_delete: true,
+              with_print: true,
+              with_update_history: true,
+              arab_page_name: true,
+              eng_page_name: true,
+              page_link: true,
+            },
+          },
+        },
+      });
+
+      const data = page_permissions.map((record) => {
+        const {
+          app_pages,
+          user_permissions_id,
+          page_id,
+          status,
+          can_add,
+          can_edit,
+          can_delete,
+          can_print,
+          can_update_history,
+        } = record;
+        const {
+          with_add,
+          with_edit,
+          with_delete,
+          with_print,
+          with_update_history,
+          // arab_page_name,
+          eng_page_name,
+          page_link,
+        } = app_pages;
+        const obj = {
+          user_permissions_id,
+          page_id,
+          status,
+          page_name: eng_page_name,
+          page_link,
+          page_permissions: {
+            can_add,
+            can_edit,
+            can_delete,
+            can_print,
+            can_update_history,
+          },
+        };
+
+        !with_add && delete obj.page_permissions.can_add;
+        !with_edit && delete obj.page_permissions.can_edit;
+        !with_delete && delete obj.page_permissions.can_delete;
+        !with_print && delete obj.page_permissions.can_print;
+        !with_update_history && delete obj.page_permissions.can_update_history;
+
+        return obj;
+      });
+
+      return {
+        data,
+      };
+    } catch (error) {
+      return {
+        data: [],
+      };
+    }
+  }
+
+  async postPagesPermission(dto: UserPermissionType[]) {
+    try {
+      if (dto.length !== 0) {
+        dto.map(async (record) => {
+          const { user_permissions_id, status, page_permissions } = record;
+          const { can_add, can_delete, can_edit, can_print } =
+            page_permissions || {};
+
+          await this.prisma.user_permissions.update({
+            where: {
+              user_permissions_id,
+            },
+            data: {
+              status,
+              can_add,
+              can_delete,
+              can_edit,
+              can_print,
+            },
+          });
+        });
+        return {
+          response: 'success',
+        };
+      } else {
+        throw new ForbiddenException('Invalid Data');
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 }
