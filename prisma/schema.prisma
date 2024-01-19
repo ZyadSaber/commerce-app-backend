@@ -30,8 +30,8 @@ model page_parent {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
-  eng_page_parent_name  String @unique()
-  arab_page_parent_name String @unique()
+  eng_page_parent_name  String  @unique()
+  arab_page_parent_name String  @unique()
   hidden                Boolean @default(false)
 
   app_pages app_pages[]
@@ -44,10 +44,10 @@ model app_pages {
 
   page_parent_id Int?
 
-  eng_page_name  String  @unique()
-  arab_page_name String  @unique()
-  page_icon      String  @default("")
-  page_link      String  @unique()
+  eng_page_name  String   @unique()
+  arab_page_name String   @unique()
+  page_icon      String   @default("")
+  page_link      String   @unique()
   page_disabled  Boolean? @default(false)
   run_in_modal   Boolean? @default(false)
 
@@ -57,9 +57,9 @@ model app_pages {
   with_print          Boolean @default(true)
   with_update_history Boolean @default(false)
 
-  page_parent      page_parent?       @relation(fields: [page_parent_id], references: [page_parent_id])
-  user_permissions user_permissions[]
-  page_label       page_label[]
+  page_parent         page_parent?          @relation(fields: [page_parent_id], references: [page_parent_id])
+  user_permissions    user_permissions[]
+  labels_linked_pages labels_linked_pages[]
 }
 
 model user_permissions {
@@ -82,24 +82,33 @@ model user_permissions {
 model labels {
   label_id String @id @unique
 
-  eng_label  String
-  arab_label String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  eng_page_name  String       @unique()
-  arab_page_name String       @unique()
-  page_label     page_label[]
+  eng_label           String
+  arab_label          String
+  labels_linked_pages labels_linked_pages[]
 }
 
-model page_label {
+model app_components {
+  component_id Int @id @default(autoincrement())
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  component_name String @unique()
+
+  labels_linked_pages labels_linked_pages[]
+}
+
+model labels_linked_pages {
   row_key Int @id @default(autoincrement())
 
-  page_id Int
+  page_id      Int?
+  label_id     String
+  component_id Int?
 
-  label_id String
-
-  eng_page_name  String @unique()
-  arab_page_name String @unique()
-
-  app_pages app_pages @relation(fields: [page_id], references: [page_id])
-  labels    labels    @relation(fields: [label_id], references: [label_id])
+  app_pages      app_pages?      @relation(fields: [page_id], references: [page_id])
+  labels         labels?         @relation(fields: [label_id], references: [label_id])
+  app_components app_components? @relation(fields: [component_id], references: [component_id])
 }

@@ -13,7 +13,14 @@
   },
   "files.trimTrailingWhitespace": true,
   "editor.rulers": [100],
-  "cSpell.words": ["acntsmry", "bscdat", "emplys", "rprts", "العربية"],
+  "cSpell.words": [
+    "acntsmry",
+    "bscdat",
+    "emplys",
+    "linkedcomponents",
+    "rprts",
+    "العربية"
+  ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
