@@ -37,6 +37,7 @@ export class AuthService {
         access_token: await this.jwtService.signAsync(payload),
         user_name: user.first_name,
         build_number: this.config.get('BUILD_NUMBER'),
+        p_language: user.language,
       };
     } catch (error) {
       throw new ForbiddenException('Incorrect user_name or password');

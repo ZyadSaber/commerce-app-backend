@@ -38,9 +38,14 @@ export class AuthController {
     return this.authService.postPagesPermission(dto);
   }
 
-  @Public()
   @Post('post_users_table_data')
   postUserData(@Body() dto: any) {
     return this.authService.postUserData(dto);
+  }
+
+  @Public()
+  @Get('page_privilege')
+  pagePrivilege() {
+    return {};
   }
 }

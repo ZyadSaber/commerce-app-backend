@@ -1,7 +1,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { format } from 'date-fns';
 import { PrismaManageService } from './../prisma-manage/prisma-manage.service';
-import { linkedLabelsPages } from './interface';
+import { linkedLabelsPages, PostLabelsTableDataType } from './interface';
 
 @Injectable()
 export class SystemLabelsService {
@@ -11,7 +11,7 @@ export class SystemLabelsService {
     try {
       const labelsData = await this.prisma.labels.findMany({
         orderBy: {
-          label_id: 'asc',
+          updated_at: 'asc',
         },
       });
       const response = labelsData.map((record) => {
@@ -118,22 +118,13 @@ export class SystemLabelsService {
       dto.map(async (record) => {
         const { label_id, page_id, component_id, status } = record;
         if (status) {
-          const existingLinkedLabel =
-            await this.prisma.labels_linked_pages.findMany({
-              where: {
-                label_id,
-                OR: [{ page_id: +page_id }, { component_id: +component_id }],
-              },
-            });
-          if (existingLinkedLabel.length === 0) {
-            await this.prisma.labels_linked_pages.create({
-              data: {
-                label_id,
-                page_id: +page_id,
-                component_id: +component_id,
-              },
-            });
-          }
+          await this.prisma.labels_linked_pages.create({
+            data: {
+              label_id,
+              page_id: +page_id,
+              component_id: +component_id,
+            },
+          });
         } else {
           await this.prisma.labels_linked_pages.deleteMany({
             where: {
@@ -154,5 +145,119 @@ export class SystemLabelsService {
   async getLinkedLabels(params: {
     page_name?: string;
     component_name?: string;
-  }) {}
+    p_language: number | string;
+  }) {
+    const { page_name, component_name, p_language } = params;
+    try {
+      const responseObj: Record<string, string> = {};
+      const linkedLabels = await this.prisma.labels_linked_pages.findMany({
+        where: {
+          OR: [
+            {
+              app_pages: {
+                page_link: page_name || undefined,
+              },
+            },
+            {
+              app_components: {
+                component_name: component_name || undefined,
+              },
+            },
+          ],
+        },
+        select: {
+          label_id: true,
+          labels: {
+            select: {
+              eng_label: +p_language === 1,
+              arab_label: +p_language === 2,
+            },
+          },
+        },
+      });
+
+      linkedLabels.map((record) => {
+        const { label_id, labels } = record;
+        const { eng_label, arab_label } = labels;
+
+        responseObj[label_id] = +p_language === 1 ? eng_label : arab_label;
+      });
+
+      return responseObj;
+    } catch (error) {
+      throw new ForbiddenException({
+        response: 'error',
+        message: error,
+      });
+    }
+  }
+
+  async postLabelsTableData(dto: PostLabelsTableDataType) {
+    const { query_status, label_id, eng_label, arab_label } = dto;
+    if (query_status === 'n') {
+      try {
+        await this.prisma.labels.create({
+          data: {
+            label_id,
+            eng_label,
+            arab_label,
+          },
+        });
+        return {
+          response: 'success',
+        };
+      } catch (error) {
+        throw new ForbiddenException({
+          response: 'error',
+          message: error,
+        });
+      }
+    } else if (query_status === 'u') {
+      try {
+        await this.prisma.labels.update({
+          where: {
+            label_id,
+          },
+          data: {
+            eng_label,
+            arab_label,
+          },
+        });
+        return {
+          response: 'success',
+        };
+      } catch (error) {
+        throw new ForbiddenException({
+          response: 'error',
+          message: error,
+        });
+      }
+    } else if (query_status === 'd') {
+      try {
+        await this.prisma.labels_linked_pages.deleteMany({
+          where: {
+            label_id,
+          },
+        });
+        await this.prisma.labels.delete({
+          where: {
+            label_id,
+          },
+        });
+        return {
+          response: 'success',
+        };
+      } catch (error) {
+        throw new ForbiddenException({
+          response: 'error',
+          message: error,
+        });
+      }
+    } else {
+      throw new ForbiddenException({
+        response: 'error',
+        message: 'error in json',
+      });
+    }
+  }
 }

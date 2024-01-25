@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class linkedLabelsPages {
   @IsNotEmpty()
@@ -6,4 +6,14 @@ export class linkedLabelsPages {
   page_id?: string | number;
   component_id?: string;
   status: boolean;
+}
+
+export class PostLabelsTableDataType {
+  @IsNotEmpty()
+  @IsString()
+  label_id: string;
+  eng_label: string;
+  arab_label: string;
+  @IsNotEmpty()
+  query_status: 'n' | 'u' | 'd';
 }
