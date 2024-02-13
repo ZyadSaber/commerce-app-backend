@@ -7,9 +7,16 @@ import { linkedLabelsPages, PostLabelsTableDataType } from './interface';
 export class SystemLabelsController {
   constructor(private systemLabelsService: SystemLabelsService) {}
 
+  @Public()
   @Get('get_labels_table_data')
-  getLabelsTableData() {
-    return this.systemLabelsService.getLabelsTableData();
+  getLabelsTableData(
+    @Query()
+    params: {
+      page_step: number;
+      current_page: number;
+    },
+  ) {
+    return this.systemLabelsService.getLabelsTableData(params);
   }
 
   @Get('get_linked_labels_page')

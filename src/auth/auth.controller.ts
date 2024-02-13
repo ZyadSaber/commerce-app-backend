@@ -19,7 +19,14 @@ export class AuthController {
   }
 
   @Get('get_users_data')
-  getUsersData(@Query() params: { user_name: string }) {
+  getUsersData(
+    @Query()
+    params: {
+      user_name: string;
+      page_step: number;
+      current_page: number;
+    },
+  ) {
     return this.authService.getUsersData(params);
   }
 
@@ -41,11 +48,5 @@ export class AuthController {
   @Post('post_users_table_data')
   postUserData(@Body() dto: any) {
     return this.authService.postUserData(dto);
-  }
-
-  @Public()
-  @Get('page_privilege')
-  pagePrivilege() {
-    return {};
   }
 }

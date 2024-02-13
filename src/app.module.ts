@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaManageModule } from './prisma-manage/prisma-manage.module';
 import { AppImagesModule } from './app_images/app_images.module';
 import { SystemLabelsModule } from './system-labels/system-labels.module';
+import { PageSetupModule } from './page-setup/page-setup.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { SystemLabelsModule } from './system-labels/system-labels.module';
     ConfigModule.forRoot({ isGlobal: true }),
     AppImagesModule,
     SystemLabelsModule,
+    PageSetupModule,
   ],
 })
 export class AppModule {}

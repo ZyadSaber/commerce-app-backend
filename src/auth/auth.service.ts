@@ -121,29 +121,40 @@ export class AuthService {
     return computedData;
   }
 
-  async getUsersData(dto: { user_name: string }) {
-    const { user_name } = dto;
-    const users = await this.prisma.users.findMany({
-      orderBy: {
-        user_id: 'asc',
-      },
-      where: {
-        user_name: {
-          contains: user_name || undefined,
-        },
-      },
-      select: {
-        user_id: true,
-        created_at: true,
-        updated_at: true,
-        user_name: true,
-        first_name: true,
-        last_name: true,
-        language: true,
-      },
-    });
+  async getUsersData(dto: {
+    user_name: string;
+    page_step: number;
+    current_page: number;
+  }) {
+    const { user_name, page_step, current_page } = dto;
+    const skip = (+current_page - 1) * +page_step;
 
-    const response = users.map((record) => {
+    const [users, total_records] = await Promise.all([
+      this.prisma.users.findMany({
+        skip,
+        take: +page_step,
+        orderBy: {
+          user_id: 'asc',
+        },
+        where: {
+          user_name: {
+            contains: user_name || undefined,
+          },
+        },
+        select: {
+          user_id: true,
+          created_at: true,
+          updated_at: true,
+          user_name: true,
+          first_name: true,
+          last_name: true,
+          language: true,
+        },
+      }),
+      this.prisma.users.count(),
+    ]);
+
+    const data = users.map((record) => {
       const { created_at, updated_at, language } = record;
       const obj = {
         ...record,
@@ -154,9 +165,7 @@ export class AuthService {
       return obj;
     });
 
-    return {
-      data: response,
-    };
+    return { total_records, data };
   }
 
   async getPagesPermission(dto: { user_id: string }) {

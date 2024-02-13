@@ -7,14 +7,22 @@ import { linkedLabelsPages, PostLabelsTableDataType } from './interface';
 export class SystemLabelsService {
   constructor(private prisma: PrismaManageService) {}
 
-  async getLabelsTableData() {
+  async getLabelsTableData(params) {
+    const { page_step, current_page } = params;
     try {
-      const labelsData = await this.prisma.labels.findMany({
-        orderBy: {
-          updated_at: 'asc',
-        },
-      });
-      const response = labelsData.map((record) => {
+      const skip = (+current_page - 1) * +page_step;
+      const [labelsData, total_records] = await Promise.all([
+        this.prisma.labels.findMany({
+          skip,
+          take: +page_step,
+          orderBy: {
+            updated_at: 'asc',
+          },
+        }),
+        this.prisma.labels.count(),
+      ]);
+
+      const data = labelsData.map((record) => {
         const { created_at, updated_at } = record;
         const obj = {
           ...record,
@@ -24,9 +32,7 @@ export class SystemLabelsService {
         return obj;
       });
 
-      return {
-        data: response,
-      };
+      return { total_records, data };
     } catch (error) {
       throw new ForbiddenException({
         response: 'error',
@@ -207,6 +213,7 @@ export class SystemLabelsService {
           response: 'success',
         };
       } catch (error) {
+        console.log(error);
         throw new ForbiddenException({
           response: 'error',
           message: error,
