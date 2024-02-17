@@ -82,6 +82,7 @@ export class SystemLabelsService {
                 linked_id: `page_id_${page_id}`,
                 linked_name: `${eng_page_name} / ${arab_page_name}`,
                 status: linkedPages.includes(page_id),
+                query_status: 'q',
               };
               return obj;
             },
@@ -122,24 +123,29 @@ export class SystemLabelsService {
   async postLinkedLabelsPage(dto: linkedLabelsPages[]) {
     try {
       dto.map(async (record) => {
-        const { label_id, page_id, component_id, status } = record;
-        if (status) {
-          await this.prisma.labels_linked_pages.create({
-            data: {
-              label_id,
-              page_id: +page_id,
-              component_id: +component_id,
-            },
-          });
-        } else {
-          await this.prisma.labels_linked_pages.deleteMany({
-            where: {
-              label_id,
-              OR: [{ page_id: +page_id }, { component_id: +component_id }],
-            },
-          });
+        const { label_id, page_id, component_id, status, query_status } =
+          record;
+        if (query_status === 'u') {
+          if (status) {
+            await this.prisma.labels_linked_pages.create({
+              data: {
+                label_id,
+                page_id: +page_id,
+                component_id: +component_id,
+              },
+            });
+          } else {
+            await this.prisma.labels_linked_pages.deleteMany({
+              where: {
+                label_id,
+                OR: [{ page_id: +page_id }, { component_id: +component_id }],
+              },
+            });
+          }
         }
       });
+
+      return { response: 'success' };
     } catch (error) {
       throw new ForbiddenException({
         response: 'error',
@@ -213,7 +219,6 @@ export class SystemLabelsService {
           response: 'success',
         };
       } catch (error) {
-        console.log(error);
         throw new ForbiddenException({
           response: 'error',
           message: error,

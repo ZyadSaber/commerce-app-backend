@@ -6,6 +6,8 @@ export class linkedLabelsPages {
   page_id?: string | number;
   component_id?: string;
   status: boolean;
+  @IsNotEmpty()
+  query_status: 'q' | 'u';
 }
 
 export class PostLabelsTableDataType {

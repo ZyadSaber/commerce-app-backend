@@ -4,6 +4,6 @@ import { SystemLabelsService } from './system-labels.service';
 
 @Module({
   controllers: [SystemLabelsController],
-  providers: [SystemLabelsService]
+  providers: [SystemLabelsService],
 })
 export class SystemLabelsModule {}

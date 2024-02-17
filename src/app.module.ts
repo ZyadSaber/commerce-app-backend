@@ -5,6 +5,7 @@ import { PrismaManageModule } from './prisma-manage/prisma-manage.module';
 import { AppImagesModule } from './app_images/app_images.module';
 import { SystemLabelsModule } from './system-labels/system-labels.module';
 import { PageSetupModule } from './page-setup/page-setup.module';
+import { PagesParentModule } from './pages-parent/pages-parent.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PageSetupModule } from './page-setup/page-setup.module';
     AppImagesModule,
     SystemLabelsModule,
     PageSetupModule,
+    PagesParentModule,
   ],
 })
 export class AppModule {}
