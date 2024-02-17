@@ -1,4 +1,27 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body } from '@nestjs/common';
+import { PagesParentService } from './pages-parent.service';
+import { PostParentsData } from './interface';
 
-@Controller('pages-parent')
-export class PagesParentController {}
+@Controller('api/pages_parent')
+export class PagesParentController {
+  constructor(private pagesParentService: PagesParentService) {}
+
+  @Get('get_parents_table_data')
+  getParentsTableData(
+    @Query()
+    params: {
+      page_step: number;
+      current_page: number;
+    },
+  ) {
+    return this.pagesParentService.getParentsTableData(params);
+  }
+
+  @Post('post_parents_table_data')
+  postParentsTableData(
+    @Body()
+    dto: PostParentsData,
+  ) {
+    return this.pagesParentService.postParentsTableData(dto);
+  }
+}
