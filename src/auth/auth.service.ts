@@ -35,7 +35,9 @@ export class AuthService {
       return {
         response: 'success',
         access_token: await this.jwtService.signAsync(payload),
-        user_name: user.first_name,
+        user_name: user.user_name,
+        firs_name: user.first_name,
+        last_name: user.last_name,
         build_number: this.config.get('BUILD_NUMBER'),
         p_language: user.language,
       };
@@ -149,6 +151,7 @@ export class AuthService {
           first_name: true,
           last_name: true,
           language: true,
+          status: true,
         },
       }),
       this.prisma.users.count(),
@@ -354,6 +357,35 @@ export class AuthService {
       new ForbiddenException({
         response: 'error',
         message: 'error with the JSON',
+      });
+    }
+  }
+
+  async validateUserToPage(params) {
+    const { user_name, path_name } = params;
+
+    try {
+      const { status } = await this.prisma.user_permissions.findFirst({
+        where: {
+          AND: [
+            {
+              users: {
+                user_name,
+              },
+            },
+            {
+              app_pages: {
+                page_link: path_name,
+              },
+            },
+          ],
+        },
+      });
+      return { have_permission: status ? status : false };
+    } catch (error) {
+      new ForbiddenException({
+        response: 'error',
+        message: error,
       });
     }
   }

@@ -93,8 +93,8 @@ export class PageSetupService {
         });
       }
     } else if (query_status === 'u') {
-      delete params.query_status;
-      delete params.page_id;
+      // delete params.query_status;
+      // delete params.page_id;
       try {
         await this.prisma.app_pages.update({
           where: {

@@ -19,6 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate": "prisma migrate dev",
+    "create_sql_database": "prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma --script > ./prisma/migrations/migration.sql",
+    "latest_update": "prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script > ./prisma/migrations/update_sql.pgsql",
     "clean-node": "rm -rf ./node_modules",
     "clean-build": "rm -rf ./dist"
   },

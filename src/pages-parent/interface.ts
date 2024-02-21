@@ -10,4 +10,6 @@ export class PostParentsData {
   eng_page_parent_name: string;
   hidden?: boolean;
   page_parent_id: number;
+  @IsNotEmpty()
+  page_parent_index: number
 }

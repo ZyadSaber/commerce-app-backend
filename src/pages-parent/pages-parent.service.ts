@@ -17,7 +17,7 @@ export class PagesParentService {
           skip,
           take: +page_step,
           orderBy: {
-            updated_at: 'asc',
+            page_parent_index: 'asc',
           },
         }),
         this.prisma.page_parent.count(),
@@ -49,6 +49,7 @@ export class PagesParentService {
       eng_page_parent_name,
       hidden,
       page_parent_id,
+      page_parent_index
     } = dto;
     if (query_status === 'n') {
       try {
@@ -57,6 +58,7 @@ export class PagesParentService {
             arab_page_parent_name,
             eng_page_parent_name,
             hidden,
+            page_parent_index
           },
         });
         return {
@@ -78,6 +80,8 @@ export class PagesParentService {
             arab_page_parent_name,
             eng_page_parent_name,
             hidden,
+            page_parent_id,
+            page_parent_index
           },
         });
         return {
@@ -106,5 +110,22 @@ export class PagesParentService {
         });
       }
     }
+  }
+
+  async getParentsList({ p_language }) {
+    const data = await this.prisma.page_parent.findMany({
+      select: {
+        page_parent_id: true,
+        eng_page_parent_name: +p_language === 1 ? true : false,
+        arab_page_parent_name: +p_language === 2 ? true : false,
+      },
+    });
+    const response = data.map(
+      ({ page_parent_id, eng_page_parent_name, arab_page_parent_name }) => ({
+        value: page_parent_id,
+        label: +p_language === 1 ? eng_page_parent_name : arab_page_parent_name,
+      }),
+    );
+    return response;
   }
 }

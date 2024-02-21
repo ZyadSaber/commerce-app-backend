@@ -24,4 +24,14 @@ export class PagesParentController {
   ) {
     return this.pagesParentService.postParentsTableData(dto);
   }
+
+  @Get('get_parents_list')
+  getParentsList(
+    @Query()
+    params: {
+      p_language: number | string;
+    },
+  ) {
+    return this.pagesParentService.getParentsList(params);
+  }
 }

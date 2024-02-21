@@ -49,4 +49,11 @@ export class AuthController {
   postUserData(@Body() dto: any) {
     return this.authService.postUserData(dto);
   }
+
+  @Get('validate_user_to_page')
+  validateUserToPage(
+    @Query() params: { user_name: string; path_name: string },
+  ) {
+    return this.authService.validateUserToPage(params);
+  }
 }
