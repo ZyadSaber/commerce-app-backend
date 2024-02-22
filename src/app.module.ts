@@ -6,6 +6,7 @@ import { AppImagesModule } from './app_images/app_images.module';
 import { SystemLabelsModule } from './system-labels/system-labels.module';
 import { PageSetupModule } from './page-setup/page-setup.module';
 import { PagesParentModule } from './pages-parent/pages-parent.module';
+import { OrganizationSetupModule } from './organization-setup/organization-setup.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PagesParentModule } from './pages-parent/pages-parent.module';
     SystemLabelsModule,
     PageSetupModule,
     PagesParentModule,
+    OrganizationSetupModule,
   ],
 })
 export class AppModule {}

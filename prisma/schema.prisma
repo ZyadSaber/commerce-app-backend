@@ -95,3 +95,24 @@ model labels_linked_pages {
   labels         labels          @relation(fields: [label_id], references: [label_id])
   app_pages      app_pages?      @relation(fields: [page_id], references: [page_id])
 }
+
+model organization_setup {
+  organization_no        Int    @id @default(autoincrement())
+  eng_organization_name  String
+  arab_organization_name String
+
+  //basic data
+  tax_number              String?
+  commercial_number       String?
+  creation_date           DateTime
+  organization_address    String?
+  organization_phone_p    String?
+  organization_phone_s    String?
+  organization_email      String?
+  organization_website    String?
+  organization_notes      String?
+  vat_registration_number String?
+  bank_account_number     String?
+
+  //report screen
+}
