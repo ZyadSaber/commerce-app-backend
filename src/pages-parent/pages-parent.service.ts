@@ -49,7 +49,7 @@ export class PagesParentService {
       eng_page_parent_name,
       hidden,
       page_parent_id,
-      page_parent_index
+      page_parent_index,
     } = dto;
     if (query_status === 'n') {
       try {
@@ -58,7 +58,7 @@ export class PagesParentService {
             arab_page_parent_name,
             eng_page_parent_name,
             hidden,
-            page_parent_index
+            page_parent_index,
           },
         });
         return {
@@ -81,7 +81,7 @@ export class PagesParentService {
             eng_page_parent_name,
             hidden,
             page_parent_id,
-            page_parent_index
+            page_parent_index,
           },
         });
         return {

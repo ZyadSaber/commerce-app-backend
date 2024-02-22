@@ -21,6 +21,7 @@ export class AuthService {
       const user = await this.prisma.users.findUnique({
         where: {
           user_name,
+          status: true,
         },
       });
 
@@ -176,7 +177,11 @@ export class AuthService {
       const { user_id } = dto;
       const page_permissions = await this.prisma.user_permissions.findMany({
         orderBy: {
-          user_permissions_id: 'asc',
+          app_pages: {
+            page_parent: {
+              page_parent_index: 'desc',
+            },
+          },
         },
         where: {
           user_id: +user_id,
